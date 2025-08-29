@@ -1,14 +1,13 @@
 package com.rodrigo.biblioteca.DAO;
 
 import com.rodrigo.biblioteca.Domain.Emprestimo;
-import com.rodrigo.biblioteca.Domain.Livro;
 
+import javax.xml.crypto.Data;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,47 +22,52 @@ public class EmprestimoDAO {
     }
 
     //Listar emprestimos
-    public Set<Emprestimo> listarEmprestimo(){
+    public Set<Emprestimo> listarEmprestimo() {
         Set<Emprestimo> emprestimos = new HashSet<Emprestimo>();
+        String cliente = "";
+        String livro = "";
+        Date dataEmprestimo = null;
+        Date dataDevolucao = null;
+        boolean devolvido = false;
 
-        sql = "Select c.nome_cliente, l.nome_livro, e.data_emprestimo, e.data_devolucao_emprestimo, e.devolvido_emprestimo " +
-                "from emprestimo e" +
-                "join cliente c on e.id_usu_emprestimo = c.cliente_id " +
+        sql = "Select c.nome_cliente, l.titulo_livro, e.data_emprestimo, e.data_devolucao_emprestimo, e.devolvido_emprestimo " +
+                "from emprestimo e " +
+                "join cliente c on e.id_usu_emprestimo = c.id_cliente " +
                 "join livro l on e.id_livro_emprestimo = l.id_livro";
 
-        try{
+        try {
             ps = connection.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
-            if(rs.next()){
-                String cliente = rs.getString(1);
-                String livro = rs.getString(2);
-                Date dataEmprestimo = rs.getDate(3);
-                Date dataDevolucao = rs.getDate(4);
-                boolean devolvido = rs.getBoolean(5);
+            while (rs.next()) {
+                cliente = rs.getString(1);
+                livro = rs.getString(2);
+                dataEmprestimo = rs.getDate(3);
+                dataDevolucao = rs.getDate(4);
+                devolvido = rs.getBoolean(5);
 
-                emprestimos.add(new Emprestimo(cliente, livro, dataEmprestimo, dataDevolucao, devolvido));
+
+                emprestimos.add(new Emprestimo(cliente, livro, dataDevolucao, dataEmprestimo, devolvido));
             }
-            ps.close();
             rs.close();
+            ps.close();
             connection.close();
 
-        }catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e);
         }
 
         return emprestimos;
-
     }
 
     //Adicionar um emprestimo
     public void realizarEmprestimo(int idCliente, int idLivro, Date dataEmprestimo, Date dataDevolucao) {
-        sql = "insert into emprestimo(id_usu_emprestimo, id_livro_emprestimo,data_emprestimo, data_devolcao_emprestimo, devolvido_emprestimo)" + "values(?,?,?,?,?)";
+        sql = "insert into emprestimo(id_usu_emprestimo, id_livro_emprestimo,data_emprestimo, data_devolucao_emprestimo, devolvido_emprestimo)"
+                + "values(?,?,?,?,?)";
 
         try {
             ps = connection.prepareStatement(sql);
             ps.setInt(1, idCliente);
             ps.setInt(2, idLivro);
-            // Date dataEmprestimo = java.sql.Date.valueOf(data.toLocalDate()); fazer na classe de interação com o usuário
             ps.setDate(3, dataEmprestimo);
             ps.setDate(4, dataDevolucao);
             ps.setBoolean(5, false);
@@ -79,84 +83,91 @@ public class EmprestimoDAO {
     }
 
     //Atualizar emprestimo - visando tornar mais rapido, pesquisar pelo id antes de autualizar/excluir
-    public void atualizaEmprestimo(int idEmprestimo, Date dataDevolucao){
-        sql = "Update emprestimo set devolvido_emprestimo = ?, data_devolcao_emprestimo = ? " +
+    public void atualizaEmprestimo(int idEmprestimo, Date dataDevolucao) {
+        sql = "Update emprestimo set devolvido_emprestimo = ?, data_devolucao_emprestimo = ? " +
                 "where id_emprestimo = ?";
 
-        try{
+        try {
             ps = connection.prepareStatement(sql);
             ps.setBoolean(1, true);
             ps.setDate(2, dataDevolucao);
-            ps.setInt(2, idEmprestimo);
+            ps.setInt(3, idEmprestimo);
+            System.out.println("id emprestimo: "+idEmprestimo);
+            System.out.println("Data: "+dataDevolucao);
 
-            ps.execute();
+            ps.executeUpdate();
             ps.close();
             connection.close();
 
-        }catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e);
         }
     }
 
     //Buscar emprestimo
-    public int idEmprestimo(int idCliente, int idLivro){
+    public int idEmprestimo(int idCliente, int idLivro) {
         int idEmprestimo = 0;
-        sql = "Select id_emprestimo from emprestimo e" +
-                "join Cliente c on e.id_cliente_emprestimo =  c.id_cliente"+
-                "join Livro l on e.id_livro_emprestimo = l.id_livro"+
-                "where c.cliente_id = ? and l.id_livro_emprestimo = ?";
+        sql = "Select id_emprestimo from emprestimo e " +
+                "join cliente c on e.id_usu_emprestimo =  c.id_cliente " +
+                "join livro l on e.id_livro_emprestimo = l.id_livro " +
+                "where c.id_cliente = ? and e.id_livro_emprestimo = ?";
 
-        try{
+        try {
             ps = connection.prepareStatement(sql);
+            ps.setInt(1, idCliente);
+            ps.setInt(2, idLivro);
             ResultSet rs = ps.executeQuery();
 
-            if(rs.next()){
+            if (rs.next()) {
                 idEmprestimo = rs.getInt(1);
             }
 
             ps.close();
             rs.close();
             connection.close();
-        }catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e);
         }
         return idEmprestimo;
     }
 
     //Consultar emprestimo por livro
-    public boolean consultarEmprestimo(int idLivro){
+    public boolean consultarEmprestimo(int idLivro) {
         boolean devolvido = false;
         sql = "Select e.devolvido_emprestimo from emprestimo where id_livro_emprestimo = ?";
 
-        try{
+        try {
             ps = connection.prepareStatement(sql);
             ps.setInt(1, idLivro);
             ResultSet rs = ps.executeQuery();
 
-            devolvido = rs.getBoolean(1);
+            if (rs.next()) {
+                devolvido = rs.getBoolean(1);
+            }
 
-           ps.close();
-           rs.close();
-           connection.close();
-        }catch(SQLException e){
-            System.out.println(e);;
+            ps.close();
+            rs.close();
+            connection.close();
+        } catch (SQLException e) {
+            System.out.println(e);
         }
         return devolvido;
 
     }
 
-    public Set<Emprestimo> emprestimoPorCliente(int idCliente){
+    //Retorna os emprestimos realizados por um cliente
+    public Set<Emprestimo> emprestimoPorCliente(int idCliente) {
         Set<Emprestimo> emprestimoPorCliente = new HashSet<>();
         sql = "Select c.nome_cliente, l.nome_livro, e.data_emprestimo, e.data_devolucao_emprestimo, e.devolvido_emprestimo from emprestimo e " +
                 "join Livro l l.id_livro = e.id_livro_emprestimo " +
                 "join Cliente c c.id_cliente = e.id_cliente_emprestimo " +
                 "where c.cliente_id = ?";
 
-        try{
+        try {
             ps = connection.prepareStatement(sql);
             ps.setInt(1, idCliente);
             ResultSet rs = ps.executeQuery();
-            while(rs.next()){
+            while (rs.next()) {
                 String cliente = rs.getString(1);
                 String livro = rs.getString(2);
                 Date dataEmprestimo = rs.getDate(3);
@@ -165,10 +176,11 @@ public class EmprestimoDAO {
 
                 emprestimoPorCliente.add(new Emprestimo(cliente, livro, dataEmprestimo, dataDevolucao, devolvido));
             }
+
             ps.close();
             rs.close();
             connection.close();
-        }catch(SQLException e){
+        } catch (SQLException e) {
             System.out.println(e);
         }
 

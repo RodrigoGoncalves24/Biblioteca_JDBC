@@ -33,3 +33,7 @@ O QUE CADA COISA DEVE FAZER:
 
  26/08
  - Testar
+ - Ajustar retornos
+
+ 29/08
+ - Passando todos os nomes de livros para upper case e para usu não precisar especificar o nome corretamente

@@ -2,7 +2,6 @@ package com.rodrigo.biblioteca.Service;
 
 import com.rodrigo.biblioteca.ConnectionFactory;
 import com.rodrigo.biblioteca.DAO.ClienteDAO;
-import com.rodrigo.biblioteca.DAO.EmprestimoDAO;
 import com.rodrigo.biblioteca.Domain.Cliente;
 import com.rodrigo.biblioteca.Domain.Emprestimo;
 import com.rodrigo.biblioteca.RegraDeNegocioException;
@@ -10,9 +9,11 @@ import com.rodrigo.biblioteca.RegraDeNegocioException;
 import java.sql.Connection;
 import java.util.Set;
 
+
 public class ClienteService {
     // Regras de negócio do usuário
     private ConnectionFactory connection;
+    private EmprestimoService serviceEmprestimo;
 
     public ClienteService() {
         this.connection = new ConnectionFactory();
@@ -50,8 +51,7 @@ public class ClienteService {
     // Antes de exluir, verificar se há livros com o cliente ou se ele está ok para ser exlcuido
     public void excluirCliente(String cpf) {
         Connection conn = connection.recuperarConecxao();
-        int idCliente = new ClienteDAO(conn).idCliente(cpf);
-        Set<Emprestimo> emprestimoPorCliente = new EmprestimoDAO(conn).emprestimoPorCliente(idCliente);
+        Set<Emprestimo> emprestimoPorCliente = serviceEmprestimo.emprestimoPorCliente(cpf);
 
         if (!temEmprestimo(emprestimoPorCliente)) {
             throw new RegraDeNegocioException("O cliente informado possui livros em empréstimo");

@@ -67,7 +67,7 @@ public class ClienteDAO {
 
     //Excluir cliente
     public void excluirCliente(String c){
-        sql = "Delete from cliente where cpf = ?";
+        sql = "Delete from cliente where cpf_cliente = ?";
 
         try{
             ps = connection.prepareStatement(sql);
@@ -93,9 +93,9 @@ public class ClienteDAO {
             ps.setString(1, cpfCliente);
             ResultSet rs = ps.executeQuery();
             if(rs.next()){
-                String cpf =  rs.getString(4);
                 String nome = rs.getString(2);
-                String email = rs.getString(3);
+                String cpf =  rs.getString(3);
+                String email = rs.getString(4);
 
                 cliente = new Cliente(nome, email, cpf);
             }
@@ -111,15 +111,16 @@ public class ClienteDAO {
     }
 
     //Retorna id do cliente para pesquisa no BANCO DE DADOS
-    public int idCliente(String c){
-        sql = "Select id from cliente where cpf = ? ";
+    public int idCliente(String cliente){
+        sql = "Select id_cliente from cliente where cpf_cliente = ? ";
         int idCliente = 0;
         try{
             ps = connection.prepareStatement(sql);
-            ps.setString(1, c);
+            ps.setString(1, cliente);
             ResultSet rs = ps.executeQuery();
-            idCliente = rs.getInt(1);
-
+            if(rs.next()){
+                idCliente = rs.getInt(1);
+            }
             ps.close();
             rs.close();
             connection.close();

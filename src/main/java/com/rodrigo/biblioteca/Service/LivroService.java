@@ -48,7 +48,7 @@ public class LivroService {
         Connection conn = connection.recuperarConecxao();
         Livro livro =  new LivroDAO(conn).verificaLivro(titulo);
         if(livro ==  null){
-            throw new RegraDeNegocioException("Livro ");
+            throw new RegraDeNegocioException("Livro não existe");
         }
         return livro;
     }

@@ -1,7 +1,5 @@
 package com.rodrigo.biblioteca.DAO;
 
-
-import com.rodrigo.biblioteca.Domain.Cliente;
 import com.rodrigo.biblioteca.Domain.Livro;
 
 import java.sql.Connection;
@@ -63,7 +61,7 @@ public class LivroDAO {
         try {
             ps = connection.prepareStatement(sql);
 
-            ps.setString(1,titulo);
+            ps.setString(1,titulo.toUpperCase());
             ps.setString(2,categoria);
             ps.setString(3,autor);
             ps.setBoolean(4, true);
@@ -77,16 +75,21 @@ public class LivroDAO {
     }
 
     //Verificar status do livro
-    public Livro verificaLivro(String t){
-        sql = "Select  * from livro where titulo_livro = ?";
+    public Livro verificaLivro(String tituloLivro){
+        sql = "Select  * from livro where (UPPER) titulo_livro = (UPPER)?";
         Livro l = null;
+        String titulo = "";
+        String categoria = "";
+        boolean disponivel = false;
         try{
             ps = connection.prepareStatement(sql);
-            ps.setString(1, t);
+            ps.setString(1, tituloLivro);
             ResultSet rs = ps.executeQuery();
-            String titulo = rs.getString(2);
-            String categoria = rs.getString(3);
-            boolean disponivel = rs.getBoolean(5);
+            if(rs.next()){
+                 titulo = rs.getString(2);
+                 categoria = rs.getString(3);
+                 disponivel = rs.getBoolean(5);
+            }
 
            l = new Livro(titulo, categoria, disponivel);
            ps.close();
@@ -115,13 +118,13 @@ public class LivroDAO {
 
     }
 
-    public int idLivro(String t){
-        sql = "select id_livro from livro where titulo_livro = ?";
+    public int idLivro(String tituloLivro){
+        sql = "select id_livro from livro where (UPPER) titulo_livro = ? (UPPER)";
         int idLivro = 0;
 
         try{
             ps = connection.prepareStatement(sql);
-            ps.setString(1, t);
+            ps.setString(1, tituloLivro);
             ResultSet rs = ps.executeQuery();
             if (rs.next()) {
                 idLivro = rs.getInt(1);
@@ -137,7 +140,7 @@ public class LivroDAO {
 
     public Livro buscaLivro(String titulo){
         Livro livro = null;
-        sql = "Select * from livro where titulo_livro = ?";
+        sql = "Select * from livro where (UPPER)titulo_livro = (UPPER)?";
         try{
             ps = connection.prepareStatement(sql);
             ps.setString(1, titulo);
@@ -159,12 +162,12 @@ public class LivroDAO {
     }
 
     public void atualizaLivro(String titulo, boolean disponibilidade){
-        sql = "update set disp_livro = ? from livro where titulo_livro = ?";
+        sql = "update livro set disp_livro = ? where (UPPER)titulo_livro = (UPPER)?";
 
         try{
             ps = connection.prepareStatement(sql);
+            ps.setBoolean(1, disponibilidade);
             ps.setString(2, titulo);
-            ps.setBoolean(3, disponibilidade);
             ps.execute();
 
             ps.close();

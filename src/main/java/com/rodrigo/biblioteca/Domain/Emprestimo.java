@@ -1,6 +1,5 @@
 package com.rodrigo.biblioteca.Domain;
 
-import javax.xml.crypto.Data;
 import java.util.Date;
 
 public class Emprestimo {
@@ -55,6 +54,6 @@ public class Emprestimo {
 
     @Override
     public String toString() {
-        return "\nUsuário: "+getUsarioEmprestimo()+"\nLivro: "+getLivroEmprestimo()+"\nData empréstimo: "+getDataEmprestimo() + "\n Data de devolução: "+getDataDevolucao();
+        return "\nUsuário: "+getUsarioEmprestimo()+"\nLivro: "+getLivroEmprestimo()+"\nData empréstimo: "+getDataEmprestimo() + "\nData de devolução: "+getDataDevolucao();
     }
 }

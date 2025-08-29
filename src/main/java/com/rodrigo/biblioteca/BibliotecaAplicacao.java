@@ -64,7 +64,7 @@ public class BibliotecaAplicacao {
 
 
     private static int exibirMenu() {
-        System.out.println("Bem vindo a biblioteca Mundo dos Sonhos!");
+        System.out.println("\nBem vindo a biblioteca Mundo dos Sonhos!");
         System.out.println("""
                 Selecione uma das opções abaixo:
                 1 - Listar livros
@@ -101,6 +101,7 @@ public class BibliotecaAplicacao {
     }
 
     public static void verificarLivro(){
+        in.nextLine();
         System.out.println("Digite o nome do livro: ");
         String titulo = in.nextLine();
 
@@ -121,7 +122,7 @@ public class BibliotecaAplicacao {
         String titulo = in.nextLine();
 
         java.sql.Date dataEmprestimo = Date.valueOf(LocalDate.now());
-        serviceEmprestimo.realizarEmprestimo(cpf, titulo, dataEmprestimo);
+        serviceEmprestimo.realizarEmprestimo(cpf, titulo.toUpperCase(), dataEmprestimo);
 
         System.out.println("Pressione qualquer tecla e de ENTER para voltar ao menu principal");
         in.nextLine();
@@ -159,7 +160,7 @@ public class BibliotecaAplicacao {
 
     public static void excluirCliente(){
         in.nextLine();
-        System.out.println("Insira seu cpf: ");
+        System.out.println("Insira o cpf do cliente: ");
         String cpf = in.nextLine();
         serviceCliente.excluirCliente(cpf);
 
@@ -178,7 +179,16 @@ public class BibliotecaAplicacao {
 
     }
 
-    public static void relatorio(){}
+    public static void relatorio(){
+        System.out.println("Lista dos empréstimos: ");
+
+        var emprestimos = serviceEmprestimo.listarEmprestimos();
+        emprestimos.forEach(System.out::println);
+
+        System.out.println("Pressione qualquer tecla e de ENTER para voltar ao menu principal");
+        in.nextLine();
+
+    }
     public static void cadastrarLivro(){
         in.nextLine();
         System.out.println("Informe o nome do livro: ");
@@ -194,15 +204,15 @@ public class BibliotecaAplicacao {
         System.out.println("Pressione qualquer tecla e de ENTER para voltar ao menu principal");
         in.nextLine();
     }
+
     public static void listarCliente(){
         System.out.println("Cliente cadastrados:");
         var cliente = serviceCliente.listarCliente();
         cliente.forEach(System.out::println);
 
         System.out.println("Pressione qualquer tecla e de ENTER para voltar ao menu principal");
-        in.next();
+        in.nextLine();
     }
-
 
     public static void opcaoFuncionario(){
         int opFuncionario = exibirMenuFuncionario();
