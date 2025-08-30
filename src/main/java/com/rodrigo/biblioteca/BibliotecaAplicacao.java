@@ -122,7 +122,7 @@ public class BibliotecaAplicacao {
         String titulo = in.nextLine();
 
         java.sql.Date dataEmprestimo = Date.valueOf(LocalDate.now());
-        serviceEmprestimo.realizarEmprestimo(cpf, titulo.toUpperCase(), dataEmprestimo);
+        serviceEmprestimo.realizarEmprestimo(cpf, titulo, dataEmprestimo);
 
         System.out.println("Pressione qualquer tecla e de ENTER para voltar ao menu principal");
         in.nextLine();

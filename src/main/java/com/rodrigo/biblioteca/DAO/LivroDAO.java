@@ -76,7 +76,7 @@ public class LivroDAO {
 
     //Verificar status do livro
     public Livro verificaLivro(String tituloLivro){
-        sql = "Select  * from livro where (UPPER) titulo_livro = (UPPER)?";
+        sql = "Select  * from livro where upper(titulo_livro) = upper(?)";
         Livro l = null;
         String titulo = "";
         String categoria = "";
@@ -119,7 +119,7 @@ public class LivroDAO {
     }
 
     public int idLivro(String tituloLivro){
-        sql = "select id_livro from livro where (UPPER) titulo_livro = ? (UPPER)";
+        sql = "select id_livro from livro where upper(titulo_livro) = upper(?) ";
         int idLivro = 0;
 
         try{
@@ -140,7 +140,7 @@ public class LivroDAO {
 
     public Livro buscaLivro(String titulo){
         Livro livro = null;
-        sql = "Select * from livro where (UPPER)titulo_livro = (UPPER)?";
+        sql = "Select * from livro where upper(titulo_livro) = upper(?)";
         try{
             ps = connection.prepareStatement(sql);
             ps.setString(1, titulo);
@@ -162,7 +162,7 @@ public class LivroDAO {
     }
 
     public void atualizaLivro(String titulo, boolean disponibilidade){
-        sql = "update livro set disp_livro = ? where (UPPER)titulo_livro = (UPPER)?";
+        sql = "update livro set disp_livro = ? where upper(titulo_livro) = upper(?)";
 
         try{
             ps = connection.prepareStatement(sql);

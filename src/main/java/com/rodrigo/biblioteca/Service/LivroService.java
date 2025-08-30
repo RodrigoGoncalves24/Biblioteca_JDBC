@@ -69,7 +69,7 @@ public class LivroService {
     //Muda disponibilidade
     public void atualizaLivro(String titulo, boolean disponivel){
         Connection conn = connection.recuperarConecxao();
-        new LivroDAO(conn).atualizaLivro(titulo, !disponivel);
+        new LivroDAO(conn).atualizaLivro(titulo, disponivel);
     }
 
     public int idLivro(String titulo){

@@ -39,7 +39,7 @@ public class EmprestimoService {
         int idLivro = serviceLivro.idLivro(titulo);
         int idCliente = serviceCliente.idCliente(cpf);
 
-        serviceLivro.atualizaLivro(titulo, l.getDisponivel()); // Atualizando livro como indisponivel
+        serviceLivro.atualizaLivro(titulo, false); // Atualizando livro como indisponivel
 
         java.sql.Date dataDevolucao = java.sql.Date.valueOf(emprestimo.toLocalDate().plusMonths(1));
         new EmprestimoDAO(conn).realizarEmprestimo(idCliente, idLivro,  emprestimo, dataDevolucao);
@@ -54,7 +54,7 @@ public class EmprestimoService {
         int idCliente = serviceCliente.idCliente(cpf);
         int idEmprestimo = idEmprestimo(idLivro, idCliente);
 
-        serviceLivro.atualizaLivro(t,false); //Atualiza status do livro
+        serviceLivro.atualizaLivro(t,true); //Atualiza status do livro
 
         // Passar a data que a devolucao foi feita foi feito
         java.sql.Date dataDevolucao = java.sql.Date.valueOf(LocalDate.now());

@@ -24,11 +24,11 @@ public class EmprestimoDAO {
     //Listar emprestimos
     public Set<Emprestimo> listarEmprestimo() {
         Set<Emprestimo> emprestimos = new HashSet<Emprestimo>();
-        String cliente = "";
-        String livro = "";
-        Date dataEmprestimo = null;
-        Date dataDevolucao = null;
-        boolean devolvido = false;
+        String cliente;
+        String livro;
+        Date dataEmprestimo;
+        Date dataDevolucao;
+        boolean devolvido;
 
         sql = "Select c.nome_cliente, l.titulo_livro, e.data_emprestimo, e.data_devolucao_emprestimo, e.devolvido_emprestimo " +
                 "from emprestimo e " +
@@ -60,7 +60,7 @@ public class EmprestimoDAO {
     }
 
     //Adicionar um emprestimo
-    public void realizarEmprestimo(int idCliente, int idLivro, Date dataEmprestimo, Date dataDevolucao) {
+    public void realizarEmprestimo(int idCliente, int idLivro, Date emprestimo, Date dataDevolucao) {
         sql = "insert into emprestimo(id_usu_emprestimo, id_livro_emprestimo,data_emprestimo, data_devolucao_emprestimo, devolvido_emprestimo)"
                 + "values(?,?,?,?,?)";
 
@@ -68,7 +68,7 @@ public class EmprestimoDAO {
             ps = connection.prepareStatement(sql);
             ps.setInt(1, idCliente);
             ps.setInt(2, idLivro);
-            ps.setDate(3, dataEmprestimo);
+            ps.setDate(3, emprestimo);
             ps.setDate(4, dataDevolucao);
             ps.setBoolean(5, false);
 
@@ -92,8 +92,8 @@ public class EmprestimoDAO {
             ps.setBoolean(1, true);
             ps.setDate(2, dataDevolucao);
             ps.setInt(3, idEmprestimo);
-            System.out.println("id emprestimo: "+idEmprestimo);
-            System.out.println("Data: "+dataDevolucao);
+            System.out.println("id emprestimo: " + idEmprestimo);
+            System.out.println("Data: " + dataDevolucao);
 
             ps.executeUpdate();
             ps.close();
@@ -105,7 +105,7 @@ public class EmprestimoDAO {
     }
 
     //Buscar emprestimo
-    public int idEmprestimo(int idCliente, int idLivro) {
+    public int idEmprestimo(int idLivro, int idCliente) {
         int idEmprestimo = 0;
         sql = "Select id_emprestimo from emprestimo e " +
                 "join cliente c on e.id_usu_emprestimo =  c.id_cliente " +
@@ -118,9 +118,7 @@ public class EmprestimoDAO {
             ps.setInt(2, idLivro);
             ResultSet rs = ps.executeQuery();
 
-            if (rs.next()) {
-                idEmprestimo = rs.getInt(1);
-            }
+            if (rs.next()) idEmprestimo = rs.getInt(1);
 
             ps.close();
             rs.close();
@@ -130,6 +128,7 @@ public class EmprestimoDAO {
         }
         return idEmprestimo;
     }
+
 
     //Consultar emprestimo por livro
     public boolean consultarEmprestimo(int idLivro) {
