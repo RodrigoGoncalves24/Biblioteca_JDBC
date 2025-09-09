@@ -1,5 +1,6 @@
 package com.rodrigo.biblioteca.DAO;
 
+import com.rodrigo.biblioteca.DTO.LivroResumo;
 import com.rodrigo.biblioteca.Domain.Livro;
 
 import java.sql.Connection;
@@ -19,27 +20,24 @@ public class LivroDAO {
     }
 
     //Listar todos os livros
-    public Set<Livro> listaLivros() {
-        Set<Livro> livros = new HashSet<Livro>();
+    public Set<LivroResumo> listaLivros() {
+        Set<LivroResumo> livros = new HashSet<LivroResumo>();
         sql = "select * from livro";
         String titulo;
         String autor;
         String categoria;
-        int id;
         boolean disponivel;
-
 
         try {
             ps = connection.prepareStatement(sql);
             ResultSet resultado = ps.executeQuery();
             while (resultado.next()) {
-                id = resultado.getInt(1);
                 titulo = resultado.getString(2);
                 categoria = resultado.getString(3);
                 autor = resultado.getString(4);
                 disponivel = resultado.getBoolean(5);
 
-                livros.add(new Livro(titulo, categoria, autor, disponivel, id));
+                livros.add(new LivroResumo(titulo, autor, categoria, toSimNao(disponivel)));
             }
             ps.close();
             resultado.close();
@@ -75,12 +73,14 @@ public class LivroDAO {
     }
 
     //Verificar status do livro
-    public Livro verificaLivro(String tituloLivro){
+    public LivroResumo verificaLivro(String tituloLivro){
         sql = "Select  * from livro where upper(titulo_livro) = upper(?)";
-        Livro l = null;
+        LivroResumo l = null;
         String titulo = "";
         String categoria = "";
+        String autor = " ";
         boolean disponivel = false;
+
         try{
             ps = connection.prepareStatement(sql);
             ps.setString(1, tituloLivro);
@@ -88,10 +88,11 @@ public class LivroDAO {
             if(rs.next()){
                  titulo = rs.getString(2);
                  categoria = rs.getString(3);
+                 autor = rs.getString(4);
                  disponivel = rs.getBoolean(5);
             }
 
-           l = new Livro(titulo, categoria, disponivel);
+               l = new LivroResumo(titulo, categoria, autor, toSimNao(disponivel));
            ps.close();
            rs.close();
            connection.close();
@@ -103,12 +104,12 @@ public class LivroDAO {
         return l;
     }
 
-    public void excluirLivro(int idLivro) {
-        sql = "Delete from livro where id = ?";
+    public void excluirLivro(String titulo) {
+        sql = "Delete from livro where titulo_livro = ?";
 
         try{
             ps = connection.prepareStatement(sql);
-            ps.setInt(1, idLivro);
+            ps.setString(1, titulo);
             ps.execute();
             ps.close();
             connection.close();
@@ -177,6 +178,11 @@ public class LivroDAO {
         }
 
 
+    }
+
+    // Usado para retornar se o livro esta disponivel ou não
+    private String toSimNao(boolean disp){
+        return disp? "Sim": "Não";
     }
 
 
