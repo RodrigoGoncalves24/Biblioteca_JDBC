@@ -7,12 +7,6 @@ public class Livro {
     private int idLivro;
     private String categoria;
 
-    //Listar apenas o status do livro, se disponível ou não
-    public Livro(String titulo, String categoria, boolean disponivel) {
-        this.titulo = titulo;
-        this.categoria = categoria;
-        this.disponivel = disponivel;
-    }
 
     //Listar todos os livros do sistema
     public Livro(String titulo, String categoria, String autor, boolean disponivel, int idLivro) {
