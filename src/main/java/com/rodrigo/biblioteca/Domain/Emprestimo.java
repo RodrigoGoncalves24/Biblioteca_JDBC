@@ -3,20 +3,11 @@ package com.rodrigo.biblioteca.Domain;
 import java.util.Date;
 
 public class Emprestimo {
-    private int id;
     private String usarioEmprestimo;
     private String livroEmprestimo;
     private Date dataEmprestimo;
     private Date dataDevolucao;
     private boolean devolvido;
-
-    //Construtor para front
-    public Emprestimo(String usuarioEmprestimo, String livroEmprestimo, Date dataEmprestimo) {
-        this.usarioEmprestimo = usuarioEmprestimo;
-        this.livroEmprestimo = livroEmprestimo;
-        this.dataDevolucao = dataEmprestimo;
-        this.devolvido = false;
-    }
 
     //Construtor banco de dados
     public Emprestimo(String usuarioEmprestimo, String livroEmprestimo, Date dataEmprestimo, Date dataDevolucao, boolean devolvido) {
@@ -27,9 +18,6 @@ public class Emprestimo {
         this.devolvido = devolvido;
     }
 
-    public int getId() {
-        return id;
-    }
     public String getUsarioEmprestimo() {
         return usarioEmprestimo;
     }
@@ -44,16 +32,12 @@ public class Emprestimo {
         return dataDevolucao;
     }
 
-    public void setDataDevolucao(Date dataDevolucao) {
-       this.dataDevolucao = dataDevolucao;
-    }
-
     public boolean getDevolvido() {
         return devolvido;
     }
 
     @Override
     public String toString() {
-        return "\nUsuário: "+getUsarioEmprestimo()+"\nLivro: "+getLivroEmprestimo()+"\nData empréstimo: "+getDataEmprestimo() + "\nData de devolução: "+getDataDevolucao();
+        return "\nUsuário: "+getUsarioEmprestimo()+"\nLivro: "+getLivroEmprestimo()+"\nData empréstimo: "+getDataEmprestimo() + "\nData de devolução: "+getDataDevolucao()+"\nDevolvido: "+getDevolvido();
     }
 }
