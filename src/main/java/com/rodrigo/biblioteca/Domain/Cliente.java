@@ -1,9 +1,9 @@
 package com.rodrigo.biblioteca.Domain;
 
+// Não utilizada, passando a utlizar apenas ClienteResumo para fazer as operações necessárias - pode ser util futuramente para atualização de cadastros
 public class Cliente {
     private String nome;
     private String email;
-    private int id;
     private String cpf;
 
     // Criação de um novo cliente
@@ -11,30 +11,6 @@ public class Cliente {
         this.nome = nome;
         this.email = email;
         this.cpf = cpf;
-    }
-
-    // Retorno do banco de dados
-    public Cliente(String nome, String email, String cpf, int id) {
-        this.nome = nome;
-        this.email = email;
-        this.cpf = cpf;
-        this.id = id;
-    }
-
-    public String getNome() {
-        return nome;
-    }
-    public String getEmail() {
-        return email;
-    }
-    public int getId() {
-        return id;
-    }
-    public String getCpf() {return cpf;}
-
-
-    public String toString() {
-        return "Id: "+getId()+"\nNome: " + getNome() + "\nCPF: "+getCpf()+"\nEmail: " + getEmail();
     }
 
 }
