@@ -1,6 +1,6 @@
 package com.rodrigo.biblioteca.DAO;
 
-import com.rodrigo.biblioteca.Domain.Cliente;
+import com.rodrigo.biblioteca.DTO.ClienteResumo;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -20,8 +20,8 @@ public class ClienteDAO {
     }
 
     //Listar clientes
-    public Set<Cliente> listarCliente() {
-        Set<Cliente> clientes = new HashSet<>();
+    public Set<ClienteResumo> listarCliente() {
+        Set<ClienteResumo> clientes = new HashSet<>();
         sql = "Select * from cliente";
 
         try {
@@ -35,7 +35,7 @@ public class ClienteDAO {
                 String email = rs.getString(3);
                 String cpf = rs.getString(4);
 
-                clientes.add(new Cliente(nome, email, cpf, id));
+                clientes.add(new ClienteResumo(nome, email, cpf, id));
             }
             ps.close();
             rs.close();
@@ -82,22 +82,21 @@ public class ClienteDAO {
     }
 
     // Inner com emprestimo para retornar se cliente esta com livro, se sim, pegar as duas datas, se não, apenas deixar vazio
-        public Cliente buscarClinete(String cpfCliente){
-        Cliente cliente = null;
+        public ClienteResumo buscarCliente(String cpfCliente){
+        ClienteResumo cliente = null;
         sql = "Select * from cliente where cpf_cliente = ?";
-
-        // Chamar met da tabela de emprestimo para saber a situação do cliente
 
         try{
             ps = connection.prepareStatement(sql);
             ps.setString(1, cpfCliente);
             ResultSet rs = ps.executeQuery();
             if(rs.next()){
+                int id = rs.getInt(1);
                 String nome = rs.getString(2);
                 String cpf =  rs.getString(3);
                 String email = rs.getString(4);
 
-                cliente = new Cliente(nome, email, cpf);
+                cliente = new ClienteResumo(cpf, nome, email, id);
             }
             ps.close();
             rs.close();
