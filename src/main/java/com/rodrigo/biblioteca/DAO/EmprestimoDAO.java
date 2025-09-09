@@ -1,5 +1,6 @@
 package com.rodrigo.biblioteca.DAO;
 
+import com.rodrigo.biblioteca.DTO.EmprestimoResumo;
 import com.rodrigo.biblioteca.Domain.Emprestimo;
 
 import javax.xml.crypto.Data;
@@ -22,15 +23,16 @@ public class EmprestimoDAO {
     }
 
     //Listar emprestimos
-    public Set<Emprestimo> listarEmprestimo() {
-        Set<Emprestimo> emprestimos = new HashSet<Emprestimo>();
+    public Set<EmprestimoResumo> listarEmprestimo() {
+        Set<EmprestimoResumo> emprestimos = new HashSet<EmprestimoResumo>();
+        int idEmprestimo = 0;
         String cliente;
         String livro;
         Date dataEmprestimo;
         Date dataDevolucao;
         boolean devolvido;
 
-        sql = "Select c.nome_cliente, l.titulo_livro, e.data_emprestimo, e.data_devolucao_emprestimo, e.devolvido_emprestimo " +
+        sql = "Select e.id_emprestimo, c.nome_cliente, l.titulo_livro, e.data_emprestimo, e.data_devolucao_emprestimo, e.devolvido_emprestimo " +
                 "from emprestimo e " +
                 "join cliente c on e.id_usu_emprestimo = c.id_cliente " +
                 "join livro l on e.id_livro_emprestimo = l.id_livro";
@@ -39,14 +41,15 @@ public class EmprestimoDAO {
             ps = connection.prepareStatement(sql);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) {
-                cliente = rs.getString(1);
-                livro = rs.getString(2);
-                dataEmprestimo = rs.getDate(3);
-                dataDevolucao = rs.getDate(4);
-                devolvido = rs.getBoolean(5);
+                idEmprestimo = rs.getInt(1);
+                cliente = rs.getString(2);
+                livro = rs.getString(3);
+                dataEmprestimo = rs.getDate(4);
+                dataDevolucao = rs.getDate(5);
+                devolvido = rs.getBoolean(6);
 
 
-                emprestimos.add(new Emprestimo(cliente, livro, dataDevolucao, dataEmprestimo, devolvido));
+                emprestimos.add(new EmprestimoResumo(idEmprestimo, cliente, livro, dataEmprestimo, dataDevolucao, simToNao(devolvido)));
             }
             rs.close();
             ps.close();
@@ -92,8 +95,6 @@ public class EmprestimoDAO {
             ps.setBoolean(1, true);
             ps.setDate(2, dataDevolucao);
             ps.setInt(3, idEmprestimo);
-            System.out.println("id emprestimo: " + idEmprestimo);
-            System.out.println("Data: " + dataDevolucao);
 
             ps.executeUpdate();
             ps.close();
@@ -130,42 +131,35 @@ public class EmprestimoDAO {
     }
 
 
-    //Consultar emprestimo por livro
-    public boolean consultarEmprestimo(int idLivro) {
-        boolean devolvido = false;
-        sql = "Select e.devolvido_emprestimo from emprestimo where id_livro_emprestimo = ?";
-
-        try {
-            ps = connection.prepareStatement(sql);
-            ps.setInt(1, idLivro);
-            ResultSet rs = ps.executeQuery();
-
-            if (rs.next()) {
-                devolvido = rs.getBoolean(1);
-            }
-
-            ps.close();
-            rs.close();
-            connection.close();
-        } catch (SQLException e) {
-            System.out.println(e);
-        }
-        return devolvido;
-
+    //Para evitar repetição de código, métodos que passam a condição para a classe de consultaEmprestimo, visando consultar por cliente ou por livro
+    public Set<Emprestimo> consultaEmprestimoLivro(int idLivro){
+        return consultaEmprestimo("livro", idLivro);
     }
 
-    //Retorna os emprestimos realizados por um cliente
-    public Set<Emprestimo> emprestimoPorCliente(int idCliente) {
-        Set<Emprestimo> emprestimoPorCliente = new HashSet<>();
-        sql = "Select c.nome_cliente, l.nome_livro, e.data_emprestimo, e.data_devolucao_emprestimo, e.devolvido_emprestimo from emprestimo e " +
-                "join Livro l l.id_livro = e.id_livro_emprestimo " +
-                "join Cliente c c.id_cliente = e.id_cliente_emprestimo " +
-                "where c.cliente_id = ?";
+    public Set<Emprestimo> consultaEmprestimoCliente(int idCliente){
+        return consultaEmprestimo("cliente", idCliente);
+    }
+
+    private Set<Emprestimo> consultaEmprestimo(String tipo, int id){
+        Set<Emprestimo> emprestimos = new HashSet<>();
+
+        sql = "Select c.nome_cliente, l.titulo_livro, e.data_emprestimo, e.data_devolucao_emprestimo, e.devolvido_emprestimo" +
+                " from emprestimo e " +
+                "join Livro l on l.id_livro = e.id_livro_emprestimo " +
+                "join Cliente c on c.id_cliente = e.id_usu_emprestimo ";
+        // Evitando duplicidade do códigos
+        if(tipo.equals("cliente")){
+             sql = sql + "where e.id_cliente = ?";
+        }else if(tipo.equals("livro")){
+            sql = sql + "where e.id_livro_emprestimo = ?";
+        }
+
 
         try {
             ps = connection.prepareStatement(sql);
-            ps.setInt(1, idCliente);
+            ps.setInt(1, id);
             ResultSet rs = ps.executeQuery();
+
             while (rs.next()) {
                 String cliente = rs.getString(1);
                 String livro = rs.getString(2);
@@ -173,7 +167,7 @@ public class EmprestimoDAO {
                 Date dataDevolucao = rs.getDate(4);
                 boolean devolvido = rs.getBoolean(5);
 
-                emprestimoPorCliente.add(new Emprestimo(cliente, livro, dataEmprestimo, dataDevolucao, devolvido));
+                emprestimos.add(new Emprestimo(cliente, livro, dataEmprestimo, dataDevolucao, devolvido));
             }
 
             ps.close();
@@ -182,7 +176,14 @@ public class EmprestimoDAO {
         } catch (SQLException e) {
             System.out.println(e);
         }
+        return emprestimos;
 
-        return emprestimoPorCliente;
+
     }
+
+    private String simToNao(boolean dev){
+        return dev ? "Devolvido" : "Não devolvido";
+    }
+
+
 }
