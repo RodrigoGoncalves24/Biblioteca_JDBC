@@ -2,8 +2,9 @@ package com.rodrigo.biblioteca.Service;
 
 import com.rodrigo.biblioteca.ConnectionFactory;
 import com.rodrigo.biblioteca.DAO.EmprestimoDAO;
+import com.rodrigo.biblioteca.DTO.EmprestimoResumo;
+import com.rodrigo.biblioteca.DTO.LivroResumo;
 import com.rodrigo.biblioteca.Domain.Emprestimo;
-import com.rodrigo.biblioteca.Domain.Livro;
 import com.rodrigo.biblioteca.RegraDeNegocioException;
 
 import java.sql.Connection;
@@ -22,7 +23,7 @@ public class EmprestimoService {
     }
 
     //Listar emprestimos
-    public Set<Emprestimo> listarEmprestimos(){
+    public Set<EmprestimoResumo> listarEmprestimos(){
         Connection conn = connection.recuperarConecxao();
         return new EmprestimoDAO(conn).listarEmprestimo();
     }
@@ -31,15 +32,15 @@ public class EmprestimoService {
     public void realizarEmprestimo(String cpf, String titulo, java.sql.Date emprestimo){
         Connection conn = connection.recuperarConecxao();
 
-        Livro l = serviceLivro.verificaLivro(titulo);
-        if(!l.getDisponivel()){
+        LivroResumo l = serviceLivro.verificaLivro(titulo);
+        if(l.isDisponivel().equalsIgnoreCase("Não")){
             throw new RegraDeNegocioException("O livro já esta emprestado no momento!");
         }
 
         int idLivro = serviceLivro.idLivro(titulo);
         int idCliente = serviceCliente.idCliente(cpf);
 
-        serviceLivro.atualizaLivro(titulo, false); // Atualizando livro como indisponivel
+        serviceLivro.atualizaLivro(titulo, false); // Atualizando status do livro
 
         java.sql.Date dataDevolucao = java.sql.Date.valueOf(emprestimo.toLocalDate().plusMonths(1));
         new EmprestimoDAO(conn).realizarEmprestimo(idCliente, idLivro,  emprestimo, dataDevolucao);
@@ -50,29 +51,36 @@ public class EmprestimoService {
     //Atualiza com a devolutiva do emprestimo
     public void atualizarEmprestimo(String cpf, String t){
         Connection conn = connection.recuperarConecxao();
+        // Verificar se a devolução já não foi realizado para não sob escrever dados
         int idLivro = serviceLivro.idLivro(t);
-        int idCliente = serviceCliente.idCliente(cpf);
-        int idEmprestimo = idEmprestimo(idLivro, idCliente);
+        Set<Emprestimo> devolvido =  new EmprestimoDAO(conn).consultaEmprestimoLivro(idLivro);
 
-        serviceLivro.atualizaLivro(t,true); //Atualiza status do livro
+        if(devolvido.stream().anyMatch(Emprestimo::getDevolvido)){
+            throw new RegraDeNegocioException("Livro já devolvido!");
+        }else{
+            int idCliente = serviceCliente.idCliente(cpf);
+            int idEmprestimo = idEmprestimo(idLivro, idCliente);
 
-        // Passar a data que a devolucao foi feita foi feito
-        java.sql.Date dataDevolucao = java.sql.Date.valueOf(LocalDate.now());
+            serviceLivro.atualizaLivro(t,true); //Atualiza status do livro
 
-        new EmprestimoDAO(conn).atualizaEmprestimo(idEmprestimo, dataDevolucao);
-        System.out.println("Obrigado pela preferência!");
+            // Passar a data que a devolucao foi feita
+            java.sql.Date dataDevolucao = java.sql.Date.valueOf(LocalDate.now());
+
+            new EmprestimoDAO(conn).atualizaEmprestimo(idEmprestimo, dataDevolucao);
+            System.out.println("Obrigado pela preferência!");
+        }
 
     }
 
-    //Pesquisa se um emprestimo foi -- FAZ SENTIDO?
-    public boolean consultarEmprestimo(String tituloLivro){
+    //usado para não devolver o mesmo livro
+    public Set<Emprestimo> consultarEmprestimo(String tituloLivro){
         Connection conn = connection.recuperarConecxao();
         int idLivro = serviceLivro.idLivro(tituloLivro);
 
         if(idLivro == 0){
             throw new RegraDeNegocioException("Livro não encontrado!");
         }
-        return new EmprestimoDAO(conn).consultarEmprestimo(idLivro);
+        return new EmprestimoDAO(conn).consultaEmprestimoLivro(idLivro);
 
     }
 
@@ -90,7 +98,7 @@ public class EmprestimoService {
             throw new RegraDeNegocioException("Cliente não encontrado!");
         }
 
-        return new EmprestimoDAO(conn).emprestimoPorCliente(idCliente);
+        return new EmprestimoDAO(conn).consultaEmprestimoCliente(idCliente);
 
     }
 
