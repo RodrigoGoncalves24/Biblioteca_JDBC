@@ -52,7 +52,7 @@ public class BibliotecaAplicacao {
                     }
                 }
             }catch (RegraDeNegocioException e){
-                System.out.println("Opção inválida! Tente novamente!");
+                System.out.println(e.getMessage());
                 System.out.println("Pressione qualquer tecla e de ENTER para voltar ao menu principal");
                 in.nextLine();
             }
@@ -61,7 +61,6 @@ public class BibliotecaAplicacao {
         }
 
     }
-
 
     private static int exibirMenu() {
         System.out.println("\nBem vindo a biblioteca Mundo dos Sonhos!");
@@ -164,13 +163,15 @@ public class BibliotecaAplicacao {
         String cpf = in.nextLine();
         serviceCliente.excluirCliente(cpf);
 
+        System.out.println("Cliente excluido!");
         System.out.println("Pressione qualquer tecla e de ENTER para voltar ao menu principal");
         in.nextLine();
 
     }
 
     public static void excluirLivro(){
-        System.out.println("Indique o nome do livro a ser exluido: ");
+        in.nextLine();
+        System.out.println("Indique o nome do livro a ser excluido: ");
         String titulo = in.nextLine();
         serviceLivro.excluirLivro(titulo);
 
@@ -189,6 +190,7 @@ public class BibliotecaAplicacao {
         in.nextLine();
 
     }
+
     public static void cadastrarLivro(){
         in.nextLine();
         System.out.println("Informe o nome do livro: ");
