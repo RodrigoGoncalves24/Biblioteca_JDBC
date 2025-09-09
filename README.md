@@ -8,12 +8,11 @@
 ## Como usar
   <p>Por não conter uma interface gráfica, o programa roda inteiramente no terminal. Como este projeto utiliza o banco de dados MySQL, certifique-se de que
   possui o mesmo instaladao em sua máquina. Importe as tabelas do projeto para seu banco de dados e faça o download das classes. Após isso, abra o projeto na IDE de sua escolha,
-  atualize as configurações de conecão com o banco de dados, fazendo os seguintes ajustes: </p>
-    - Acesse o arquivo <I>ConnectionFactory</I> em src -> java -> com.rodrigo.biblioteca
-    - <i>config.setJdbcUrl("jdbc:mysql://localhost:3306/biblioteca")</i> troque <strong>biblioteca</strong> pelo nome do banco de dados que você importou.
-    -<i>config.setUsername("root")</i> troque <strong>root</strong> pelo nome do seu usuário no MySQL
-    -<i>config.setPassword("******")</i> troque os <strong>****</strong> pela senha do seu MySQL
-  </li>
+  atualize as configurações de conecão com o banco de dados, fazendo os seguintes ajustes:
+    <p>- Acesse o arquivo <I>ConnectionFactory</I> em src -> java -> com.rodrigo.biblioteca</p>
+    <p>- <i>config.setJdbcUrl("jdbc:mysql://localhost:3306/biblioteca")</i> troque <strong>biblioteca</strong> pelo nome do banco de dados que você importou.</p>
+    <p>- <i>config.setUsername("root")</i> troque <strong>root</strong> pelo nome do seu usuário no MySQL</p>
+    <p>- <i>config.setPassword("******")</i> troque os <strong>****</strong> pela senha do seu MySQL</p>
   <p>Após esses ajustes, o programa deverá funcionar.</p>
   Bom uso!!
 
